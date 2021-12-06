@@ -1,7 +1,9 @@
 package pinyin
 
 import (
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -20,147 +22,82 @@ func testPinyin(t *testing.T, s string, d []testCase, f pinyinFunc) {
 	}
 }
 
+var finals = []string{
+	// a
+	"a1", "ā", "a2", "á", "a3", "ǎ", "a4", "à",
+	// o
+	"o1", "ō", "o2", "ó", "o3", "ǒ", "o4", "ò",
+	// e
+	"e1", "ē", "e2", "é", "e3", "ě", "e4", "è",
+	// i
+	"i1", "ī", "i2", "í", "i3", "ǐ", "i4", "ì",
+	// u
+	"u1", "ū", "u2", "ú", "u3", "ǔ", "u4", "ù",
+	// v
+	"v1", "ǖ", "v2", "ǘ", "v3", "ǚ", "v4", "ǜ",
+
+	// ai
+	"ai1", "āi", "ai2", "ái", "ai3", "ǎi", "ai4", "ài",
+	// ei
+	"ei1", "ēi", "ei2", "éi", "ei3", "ěi", "ei4", "èi",
+	// ui
+	"ui1", "uī", "ui2", "uí", "ui3", "uǐ", "ui4", "uì",
+	// ao
+	"ao1", "āo", "ao2", "áo", "ao3", "ǎo", "ao4", "ào",
+	// ou
+	"ou1", "ōu", "ou2", "óu", "ou3", "ǒu", "ou4", "òu",
+	// iu
+	"iu1", "īu", "iu2", "íu", "iu3", "ǐu", "iu4", "ìu",
+
+	// ie
+	"ie1", "iē", "ie2", "ié", "ie3", "iě", "ie4", "iè",
+	// ve
+	"ue1", "üē", "ue2", "üé", "ue3", "üě", "ue4", "üè",
+	// er
+	"er1", "ēr", "er2", "ér", "er3", "ěr", "er4", "èr",
+
+	// an
+	"an1", "ān", "an2", "án", "an3", "ǎn", "an4", "àn",
+	// en
+	"en1", "ēn", "en2", "én", "en3", "ěn", "en4", "èn",
+	// in
+	"in1", "īn", "in2", "ín", "in3", "ǐn", "in4", "ìn",
+	// un/vn
+	"un1", "ūn", "un2", "ún", "un3", "ǔn", "un4", "ùn",
+
+	// ang
+	"ang1", "āng", "ang2", "áng", "ang3", "ǎng", "ang4", "àng",
+	// eng
+	"eng1", "ēng", "eng2", "éng", "eng3", "ěng", "eng4", "èng",
+	// ing
+	"ing1", "īng", "ing2", "íng", "ing3", "ǐng", "ing4", "ìng",
+	// ong
+	"ong1", "ōng", "ong2", "óng", "ong3", "ǒng", "ong4", "òng",
+}
+
 func TestPinyin(t *testing.T) {
-	hans := "中国人"
-	testData := []testCase{
-		// default
-		{
-			Args{Style: Normal},
-			[][]string{
-				{"zhong"},
-				{"guo"},
-				{"ren"},
-			},
-		},
-		// default
-		{
-			NewArgs(),
-			[][]string{
-				{"zhong"},
-				{"guo"},
-				{"ren"},
-			},
-		},
-		// Normal
-		{
-			Args{Style: Normal},
-			[][]string{
-				{"zhong"},
-				{"guo"},
-				{"ren"},
-			},
-		},
-		// Tone
-		{
-			Args{Style: Tone},
-			[][]string{
-				{"zhōng"},
-				{"guó"},
-				{"rén"},
-			},
-		},
-		// Tone2
-		{
-			Args{Style: Tone2},
-			[][]string{
-				{"zho1ng"},
-				{"guo2"},
-				{"re2n"},
-			},
-		},
-		// Tone3
-		{
-			Args{Style: Tone3},
-			[][]string{
-				{"zhong1"},
-				{"guo2"},
-				{"ren2"},
-			},
-		},
-		// Initials
-		{
-			Args{Style: Initials},
-			[][]string{
-				{"zh"},
-				{"g"},
-				{"r"},
-			},
-		},
-		// FirstLetter
-		{
-			Args{Style: FirstLetter},
-			[][]string{
-				{"z"},
-				{"g"},
-				{"r"},
-			},
-		},
-		// Finals
-		{
-			Args{Style: Finals},
-			[][]string{
-				{"ong"},
-				{"uo"},
-				{"en"},
-			},
-		},
-		// FinalsTone
-		{
-			Args{Style: FinalsTone},
-			[][]string{
-				{"ōng"},
-				{"uó"},
-				{"én"},
-			},
-		},
-		// FinalsTone2
-		{
-			Args{Style: FinalsTone2},
-			[][]string{
-				{"o1ng"},
-				{"uo2"},
-				{"e2n"},
-			},
-		},
-		// FinalsTone3
-		{
-			Args{Style: FinalsTone3},
-			[][]string{
-				{"ong1"},
-				{"uo2"},
-				{"en2"},
-			},
-		},
-		// Heteronym
-		{
-			Args{Heteronym: true},
-			[][]string{
-				{"zhong", "zhong"},
-				{"guo"},
-				{"ren"},
-			},
-		},
-	}
+	cc := strings.Join(finals, " ")
+	for i, v := range PinyinDict {
+		l := strings.Split(v, ",")
+		if len(l) > 1 {
+			for _, vv := range l {
 
-	testPinyin(t, hans, testData, Pinyin)
+				jn := strings.Index(cc, vv)
+				if jn < 0 {
+					fmt.Printf("0x%x; %v\n", i, v)
+				}
 
-	// 测试不是多音字的 Heteronym
-	hans = "你"
-	testData = []testCase{
-		{
-			Args{},
-			[][]string{
-				{"ni"},
-			},
-		},
-		{
-			Args{Heteronym: true},
-			[][]string{
-				{"ni"},
-			},
-		},
+			}
+		}
 	}
-	testPinyin(t, hans, testData, Pinyin)
+	py := NewArgs()
+	py.Heteronym = true
+	for _, v := range "单系黄河清周志华龟抬头望明月" {
+		fmt.Printf("%x; %v\n", v, string(v))
+	}
+	s := Pinyin("单系黄河清周志华龟抬头望明月", py)
+	fmt.Println("s:", s)
+	t.Error("aaaa")
 }
 
 func TestNoneHans(t *testing.T) {
