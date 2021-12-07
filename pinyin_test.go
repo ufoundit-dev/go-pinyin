@@ -75,6 +75,14 @@ var finals = []string{
 	"ong1", "ōng", "ong2", "óng", "ong3", "ǒng", "ong4", "òng",
 }
 
+func TestName(t *testing.T) {
+	s := NewArgs()
+	s.Heteronym = true
+	sl := Name("单于志华", s)
+
+	fmt.Println(sl)
+}
+
 func TestPinyin(t *testing.T) {
 	cc := strings.Join(finals, " ")
 	for i, v := range PinyinDict {
