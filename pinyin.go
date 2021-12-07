@@ -238,6 +238,37 @@ func Pinyin(s string, a Args) [][]string {
 	return pys
 }
 
+
+// Name 名字解析解析名字
+func Name(s string, a Args) [][]string {
+	if len(s) < 1 {
+		return [][]string{}
+	}
+	pys := [][]string{}
+	// 先取出首字符
+	runeByte := []rune(s)
+	userSurname := string(runeByte[:2])
+	if val, ok := Surnames[userSurname]; ok {
+		surPy := strings.Split(val, " ")
+		pys = append(pys, []string{surPy[0]}, []string{surPy[1]})
+		runeByte = runeByte[2:]
+	} else if val, ok := Surnames[string(runeByte[0])]; ok {
+		surPy := val[:len(val)-1]// 把后面的数字去掉
+		pys = append(pys, []string{surPy})
+		runeByte = runeByte[1:]
+	}
+
+	for _, r := range runeByte {
+		py := SinglePinyin(r, a)
+		if len(py) > 0 {
+			pys = append(pys, py)
+		}
+	}
+
+	return pys
+
+}
+
 // LazyPinyin 汉字转拼音，与 `Pinyin` 的区别是：
 // 返回值类型不同，并且不支持多音字模式，每个汉字只取第一个音.
 func LazyPinyin(s string, a Args) []string {
